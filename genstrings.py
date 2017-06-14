@@ -30,11 +30,12 @@
 import os, re, subprocess
 import fnmatch
 
+
 def fetch_files_recursive(directory, extension):
     matches = []
     for root, dirnames, filenames in os.walk(directory):
-      for filename in fnmatch.filter(filenames, '*' + extension):
-          matches.append(os.path.join(root, filename))
+        for filename in fnmatch.filter(filenames, '*' + extension):
+            matches.append(os.path.join(root, filename))
     return matches
 
 
@@ -42,7 +43,7 @@ def fetch_files_recursive(directory, extension):
 localizedStringComment = re.compile('NSLocalizedString\("([^"]*)",\s*"([^"]*)"\s*\)', re.DOTALL)
 localizedStringNil = re.compile('NSLocalizedString\("([^"]*)",\s*nil\s*\)', re.DOTALL)
 localized = re.compile('Localized\("([^"]*)"[^\n\r]*\)', re.DOTALL)
-localizedProperty = re.compile('"([^"]*)".localized', re.DOTALL)# Add By QiuYuzhou
+localizedProperty = re.compile('"([^"]*)".localized', re.DOTALL)  # Add By QiuYuzhou
 localizedSwift2 = re.compile('"([^"]*)".localized\(\)', re.DOTALL)
 localizedSwift2WithFormat = re.compile('"([^"]*)".localizedFormat\([^\n\r]*\)', re.DOTALL)
 
@@ -50,7 +51,7 @@ localizedSwift2WithFormat = re.compile('"([^"]*)".localizedFormat\([^\n\r]*\)', 
 uid = 0
 strings = []
 for file in fetch_files_recursive('.', '.swift'):
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         content = f.read()
         for result in localizedStringComment.finditer(content):
             uid += 1
@@ -78,7 +79,7 @@ localizedString = re.compile('"[^=]*=\s*"([^"]*)";')
 
 # Changed By QiuYuzhou, disable for *.xib
 # fetch files
-#for file in fetch_files_recursive('.', '.xib'):
+# for file in fetch_files_recursive('.', '.xib'):
 #    tempFile = file + '.strings'
 #    utf8tempFile = file + '.strings.utf8'
 #    subprocess.call('ibtool --export-strings-file "' + tempFile + '" "' + file + '" 2>/dev/null', shell=True)
@@ -127,29 +128,28 @@ for string1 in strings:
         if dupmatch == 0:
             filestrings[string1[2]].append(string1)
 
-print '\n\n\n\n\n'
-print '/*\n * SHARED STRINGS\n */\n'
+print('\n\n\n\n\n')
+print('/*\n * SHARED STRINGS\n */\n')
 
 # output filewise
 for key in filestrings.keys():
-    print '/*\n * ' + key + '\n */\n'
+    print('/*\n * ' + key + '\n */\n')
 
     strings = filestrings[key]
     for string in strings:
         if string[1] == '':
-            print '"' + string[0] + '" = "' + string[0] + '";'
-            print
+            print('"' + string[0] + '" = "' + string[0] + '";')
+            print()
         else:
-            print '/* ' + string[1] + ' */'
-            print '"' + string[0] + '" = "' + string[0] + '";'
-            print
-
+            print('/* ' + string[1] + ' */')
+            print('"' + string[0] + '" = "' + string[0] + '";')
+            print()
 # output duplicates
 for string in duplicated:
     if string[1] == '':
-        print '"' + string[0] + '" = "' + string[0] + '";'
-        print
+        print('"' + string[0] + '" = "' + string[0] + '";')
+        print()
     else:
-        print '/* ' + string[1] + ' */'
-        print '"' + string[0] + '" = "' + string[0] + '";'
-        print
+        print('/* ' + string[1] + ' */')
+        print('"' + string[0] + '" = "' + string[0] + '";')
+        print()
